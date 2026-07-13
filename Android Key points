@@ -1,0 +1,413 @@
+Android Key points:
+
+1. understand design pattern of android Architecture
+
+
+MVVM + Clean Architecture	 which is the industry standard for scalable apps.
+
+================= PRESENTATION LAYER =================
+UI (Activity / Fragment / Compose)
+                ↓
+           ViewModel
+                ↓
+        UI State (LiveData / StateFlow)
+
+================= DOMAIN LAYER =================
+              UseCases
+                ↓
+         Business Logic
+                ↓
+        Repository Interface
+
+================= DATA LAYER =================
+           Repository Impl
+           ↓            ↓
+   Remote Data     Local Data
+   (Retrofit API)  (Room DB)
+           ↓            ↓
+        Network       Database
+
+================= CORE / COMMON =================
+DI (Hilt/Dagger) + Utils + Base Classes
+
+---------------------------------
+
+Design WhatsApp Android architecture
+
+Real-time chat (1–1, groups)
+Offline support
+Media sharing
+Notifications
+Scalability for millions of users
+
+
+High-Level Architecture
+
+
+================ PRESENTATION =================
+Compose UI / Activity / Fragment
+              ↓
+           ViewModel
+              ↓
+          UI State (Flow)
+
+================ DOMAIN =================
+          UseCases
+ (SendMessage, ReceiveMessage, SyncChat)
+              ↓
+        Repository Interface
+
+================ DATA =================
+        Repository Impl
+         ↓         ↓
+   Remote API   Local DB (Room)
+   (WebSocket)     ↓
+         ↓      Cache / Storage
+
+================ CORE =================
+ DI (Hilt) + Utils + Encryption + Logger
+
+
+-------------------------
+
+Android design pattern
+
+1. MVC 
+    - view (xml)
+    - Controller (Activity)
+    - model 
+
+Activity become god activity     
+
+2. MVP : model view presenter
+
+   View-- Presenter --- model
+
+   View -  interface LoginView{
+
+           Fun showLoading ()
+           Fun showUser()
+         
+           }
+   Presenter 
+       Class LoginPresenter(private val view: LoginView){
+
+      View.showLoading()
+
+}
+
+3. MVVM
+
+    View (UI)
+
+    Observe 
+    
+    viewModel
+
+   Repository
+
+   Data Source
+
+   API/DB
+
+
+
+4. MVI
+   
+  MVI (Model–View–Intent) is a UI architecture pattern that emphasizes unidirectional data flow and a single source of truth for UI state.
+  
+Key component of MVI
+
+ Intent -  User action , what user want to perform e.g. click login button
+ View - Activity/ compose screen - send Intent > observe state > Render UI
+ viewModel	- heart of MVI - receive Intent - call repository > update state
+Repository - 
+
+API calls -
+Database operations
+Cache
+Single source of data
+
+Reducer (Very Important) - "The Reducer is responsible for producing a new immutable state from the current state and the latest result. Instead of modifying existing state, it creates a new state object."
+
+_state.value =
+
+_state.value.copy(
+    isLoading = false,
+    user = response
+)
+
+------------------------
+Clean Architecture 
+
+   Presentation Layer -> UI , viewModel, state
+   Domain Layer -> Usecase, Entities, Repository Interface
+   Data Layer -> Repositiory Imp, API, database
+
+ Presentation Layer
+           Ui - Activity, Fragment
+              - Screens
+           viewModel -  userViewModel
+           State
+
+
+  Domain Layer
+            Model - User
+            Repository  - userRepository
+            UseCase - getUserUseCase, 
+
+     Data Layer
+                                
+              Repository  - userRepositoryImpl
+
+              Remote - APIServices
+
+              Local - Dao
+
+              
+
+----------------------
+
+ Sending Message
+User types message
+      ↓
+ViewModel
+      ↓
+SendMessageUseCase
+      ↓
+Repository
+      ↓
+1. Save to local DB (status = "sending")
+2. Send via WebSocket
+      ↓
+Server ACK
+      ↓
+Update DB (status = "sent/delivered")
+      ↓
+UI auto-updates
+
+👉 Key point: UI reads from DB, not directly from network
+
+📥 Receiving Message
+WebSocket receives message
+      ↓
+Repository
+      ↓
+Save to Room DB
+      ↓
+Flow emits update
+      ↓
+ViewModel
+      ↓
+UI updates instantly
+
+
+
+--------------------------------------------------------------------
+
+SOLID is Applied
+✅ S — Single Responsibility
+ViewModel → UI logic
+UseCase → business logic
+Repository → data operations
+ApiService → networking
+
+👉 Each class has one job.
+
+✅ O — Open/Closed
+Add new data sources (Cache, GraphQL) without modifying existing repository interface.
+👉 Use abstractions so you can extend behavior without modifying existing code.
+
+✅ L — Liskov Substitution
+UserRepositoryImpl can replace UserRepository anywhere without breaking behavior.
+✅ I — Interface Segregation
+Separate interfaces for different features (e.g., AuthRepository, UserRepository)
+✅ D — Dependency Inversion
+High-level modules depend on abstractions (UserRepository)
+Implementations injected using Hilt
+
+
+----------------------------------------------
+How to Reduce App Startup Time
+
+
+✅ Move to background thread
+Use coroutines
+viewModelScope.launch {
+    val data = withContext(Dispatchers.IO) {
+        repository.loadFromDisk()
+    }
+}
+
+✅ Use Lazy Initialization
+
+val retrofit by lazy {
+    createRetrofit()
+}
+
+✅ Reduce Layout Inflation Cost
+
+
+Use ConstraintLayout efficiently
+Use ViewStub for rarely used UI
+Flatten hierarchy
+
+
+
+✅ Defer Non-Critical SDKs
+
+Big offenders:
+
+Analytics
+Crash reporting
+Ads SDKs
+✅ Strategy:
+Initialize after first screen
+Or use background thread
+
+
+---------------------
+
+
+Why Coroutines?
+
+
+Before coroutines, Android used:
+
+Callbacks → messy (“callback hell”)
+Threads → hard to manage
+RxJava → powerful but steep learning curve
+
+Coroutines solve this by:
+
+Making async code look like sync code
+Managing threads automatically
+Being lifecycle-aware (with ViewModel)
+
+
+🔹 Key Concepts
+
+1. Coroutine Scope
+
+Defines lifecycle of coroutine
+
+In Android:
+
+viewModelScope → tied to ViewModel
+lifecycleScope → tied to Activity/Fragment
+
+
+viewModelScope.launch {
+    // safe, auto-cancelled when ViewModel is cleared
+}
+
+2. Dispatchers (Threading)
+
+Controls which thread coroutine runs on:
+
+Dispatchers.Main → UI thread
+Dispatchers.IO → network/database
+Dispatchers.Default → CPU work
+viewModelScope.launch(Dispatchers.IO) {
+    val data = api.getData()
+}
+
+
+3. suspend Functions
+
+Functions that can pause and resume
+
+suspend fun fetchUser(): User {
+    return api.getUser()
+}
+
+4. Structured Concurrency
+
+Coroutines are hierarchical:
+
+If parent is cancelled → children are cancelled
+viewModelScope.launch {
+    val user = async { api.getUser() }
+    val transactions = async { api.getTransactions() }
+
+    updateUI(user.await(), transactions.await())
+}
+5. Exception Handling
+viewModelScope.launch {
+    try {
+        val data = repository.getData()
+    } catch (e: Exception) {
+        // handle error
+    }
+
+
+
+    🔹 Quick Summary
+Coroutines = async programming made simple
+launch → fire & forget
+async → returns result
+suspend → pausable function
+Dispatchers → thread control
+Flow → reactive streams
+
+
+async ->
+
+viewModelScope.launch {
+    val user = async { api.getUser() }
+    val transactions = async { api.getTransactions() }
+
+    updateUI(user.await(), transactions.await())
+}
+
+----------------------------
+
+How would you prevent double API calls on button click?
+
+Real banking scenario
+
+👉 Expected answers:
+
+Disable button
+Use Mutex
+Use debounce
+Use StateFlow to control state
+
+
+🔹 With Mutex ✅
+private val mutex = Mutex()
+
+suspend fun makePayment() {
+    mutex.withLock {
+        api.makePayment()
+    }
+}
+
+👉 What happens:
+What happens if you load large lists?
+
+👉 Expect:
+
+Paging 3
+First coroutine acquires lock
+Others wait
+Only one executes at a time
+
+ -------------------------------
+
+ class UserViewModel : ViewModel() {
+
+    private val _state = MutableStateFlow(UiState.Loading)
+    val state: StateFlow<UiState> = _state
+
+    fun loadUser() {
+        viewModelScope.launch {
+            val user = repository.getUser()
+            _state.value = UiState.Success(user)
+        }
+    }
+}     
+
+-------------------------------
+
+

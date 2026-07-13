@@ -1,0 +1,67 @@
+
+Clean Architecture 
+
+   Presentation Layer -> UI , viewModel, state
+   Domain Layer -> Usecase, Entities, Repository Interface
+   Data Layer -> Repositiory Imp, API, database
+
+
+   Ways Room Handles Schema Changes
+   
+   Room.databaseBuilder(context, AppDatabase::class.java, "app_db")
+    .fallbackToDestructiveMigration()  // ❌ WIPES data — never in production
+    .addMigrations(MIGRATION_1_2)      // ✅ Safe — preserves data
+    .build()
+
+    UI state
+
+    data class UserUiState(
+    
+    val isLoading: Boolean =  false,
+    val users: List<User> = empatyList(),
+    val error: String? =  null
+     
+    )
+
+    Presentation Layer
+           Ui - Activity, Fragment
+              - Screens
+           viewModel -  userViewModel
+           State
+
+
+  Domain Layer
+            Model - User
+            Repository  - userRepository
+            UseCase - getUserUseCase, 
+
+     Data Layer
+                                
+              Repository  - userRepositoryImpl
+
+              Remote - APIServices
+
+              Local - Dao
+
+              
+
+MVVM (Model view viewModel)
+
+View - UI (activity, fragment , compose, display data, handle click, observe state)
+modelView - (hold UI state, calls logic, manage coroutine)
+useCase - business logic
+Repository - get data source, n/w , db calls
+Data - remote (retrofit), local -db
+
+
+
+Simple Android MVVM example
+
+
+
+
+MVVM VS Clean Architecture
+
+MVVM                        Clean Architecture
+
+Defines UI Structure        defines App structure

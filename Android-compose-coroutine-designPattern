@@ -1,0 +1,411 @@
+
+
+Enable Compose 
+
+ Build.gradle
+
+buildFeatures{
+
+DataBinding true
+Compose ture
+}
+
+Dependency
+{
+ Many dependency 
+}
+
+
+Migration view based UI to Compose 
+
+   
+
+In XML
+
+    TextView- > Button- TextView  // comment these views
+
+Add 
+ ComposeView (androidx.compose.ui.platform.composeView) 
+
+
+
+
+————————————=======================—————=====
+
+Lead Software Engineer – Android
+
+1. Role Snapshot
+	•	Team: Consumer & Community Banking Technology
+	•	Level signal: "Lead" → expect leadership, architecture, vendor evaluation, and mentoring questions, not just coding
+	•	Stack called out in JD: Java, Kotlin, Coroutines, Jetpack Compose
+	•	Themes repeated in JD: secure code, automation/CI-CD, agile/SDLC, cloud-native, financial services context, evaluating external vendors, driving communities of practice
+
+2. Technical Deep-Dive Topics
+A. Kotlin & Coroutines
+	•	Structured concurrency: CoroutineScope, Job vs SupervisorJob
+	•	Dispatchers.Main/IO/Default — when to use each
+	•	Flow vs StateFlow vs SharedFlow vs LiveData — trade-offs
+	•	Exception handling: try/catch inside coroutines vs CoroutineExceptionHandler
+	•	Cancellation cooperation (isActive, ensureActive())
+	•	Sealed classes, data classes, extension functions, inline/reified functions
+Sample Q: "Walk me through how you'd handle a coroutine that needs to survive configuration changes but should be cancelled when the ViewModel is cleared." Strong answer angle: Use viewModelScope, explain it's tied to ViewModel.onCleared(), contrast with lifecycleScope which dies on rotation without special handling, mention repeatOnLifecycle for UI-safe collection of Flows.
+B. Jetpack Compose
+	•	Recomposition mechanics: what triggers it, @Stable / @Immutable, skipping
+	•	remember, derivedStateOf, LaunchedEffect, SideEffect
+	•	State hoisting & unidirectional data flow (UDF)
+	•	Performance pitfalls: lambda allocation in loops, unstable list keys, heavy composables without key()
+	•	Compose interop with existing XML views (ComposeView, AndroidView)
+Sample Q: "A screen with a list of 500 transactions is janky when scrolling. How do you debug and fix it in Compose?" Strong answer angle: Use LazyColumn with stable key = { it.id }, check for unnecessary recompositions with Layout Inspector, memoize expensive calculations with remember/derivedStateOf, avoid creating new lambdas/objects per item, consider Modifier reuse, and profile with Compose Compiler metrics/reports.
+C. Architecture
+	•	MVVM / MVI / Clean Architecture layering (data / domain / presentation)
+	•	DI with Hilt/Dagger — component scoping, @Singleton vs @ActivityScoped
+	•	Modularization: feature modules, core/common modules, build time optimization, dependency graph management
+	•	Repository pattern, single source of truth, offline-first design
+Sample Q: "How would you structure a large banking app into modules?" Strong answer angle: Core modules (network, database, design-system, common-ui) + feature modules (accounts, transfers, cards) that depend only on core, never on each other directly — communicate via a navigation/routing abstraction or shared domain module. Discuss build time wins and team ownership boundaries.
+D. Testing, CI/CD, Automation (explicitly in JD)
+	•	Unit tests (JUnit5, MockK), Compose UI tests, Espresso for legacy views
+	•	Test pyramid: unit > integration > E2E
+	•	CI/CD: Gradle build caching, parallelization, Fastlane/Bitrise/Jenkins pipelines
+	•	Automating recurring remediation (JD explicitly mentions this) — e.g., auto-retry mechanisms, self-healing pipelines, flaky test quarantine automation
+Sample Q: "Tell me about a time you automated away a recurring operational issue." Prepare a real STAR story here — this maps directly to a JD bullet point.
+E. Security (banking context matters)
+	•	Certificate pinning, EncryptedSharedPreferences, Android Keystore
+	•	ProGuard/R8 obfuscation
+	•	Secure token storage & refresh flows (OAuth2/OIDC patterns)
+	•	Root/jailbreak detection, tamper detection basics
+	•	OWASP Mobile Top 10 awareness
+F. System Design (mobile-specific)
+Practice designing at least 2–3 of these end-to-end:
+	1	Money transfer flow — client-server contract, idempotency keys, retry-safety, confirmation screens, offline handling
+	2	Offline-capable transaction history — Room + WorkManager sync, conflict resolution, pagination
+	3	Secure session/auth management — token refresh, biometric unlock, auto-logout
+	4	Feature flagging / A/B testing infra for a large app
+For each, structure your answer as:
+	1	Clarify requirements & constraints
+	2	Client-side architecture (modules, data flow)
+	3	Network contract & caching/sync strategy
+	4	Error handling, retries, offline behavior
+	5	Security considerations
+	6	Testability & observability (logging, crash reporting, metrics)
+
+3. Leadership & Behavioral (STAR format)
+The JD explicitly calls out these responsibilities — prepare a story for each:
+JD Responsibility
+Story to Prepare
+Creative problem-solving beyond convention
+A time you solved a technical problem with a non-obvious approach
+Reviewing/debugging others' code
+A time you caught a critical issue in code review
+Automating recurring issue remediation
+A production pain point you eliminated via automation
+Leading vendor/startup evaluation sessions
+A build-vs-buy or tooling evaluation you led
+Leading communities of practice
+Driving adoption of a new tool/pattern across teams
+Team culture of inclusion & respect
+A genuine example of fostering inclusive collaboration
+STAR reminder: Situation → Task → Action → Result. Keep each to ~90 seconds when spoken. Quantify results where possible (e.g., "reduced crash rate by X%", "cut build time by Y minutes").
+
+4. Questions to Ask Them
+	•	What does the current Compose migration status look like — greenfield or hybrid with XML?
+	•	How is the team structured across feature squads, and how do you handle cross-team dependencies?
+	•	What does the release cadence and CI/CD pipeline look like today?
+	•	How does the team approach security/compliance review for new features?
+	•	What does success look like for this role in the first 6 months?
+
+5. Final Prep Checklist
+	•	[ ] 2–3 mock system design sessions (mobile-specific)
+	•	[ ] 5–6 STAR stories mapped to JD bullets above
+	•	[ ] Review your own past projects: be ready to justify architecture/DI/Compose vs XML decisions
+	•	[ ] Refresh Compose performance & coroutine exception handling specifics
+	•	[ ] Skim OWASP Mobile Top 10 and Android security best practices
+	•	[ ] Prepare 3–5 thoughtful questions for interviewers
+
+
+————————————=======================—————=====
+
+
+
+JetPack Compose 
+
+Why google has created compose 
+
+1. Lot of boilerplate code
+2. Fragment complexity 
+3. Multiple layout files 
+4. Adapters to update recycler view
+5. Ui update manually 
+
+Solved problem
+1. Less code
+2. Better readability 
+3. State driven UI
+4. Easier animations / custom views
+
+@composable
+Fun HomeScreen(){
+   column{
+   Text(“Hello”)
+  Text(“Akhand”)
+} 
+}
+
+Output : Hello
+              Akhand
+
+
+
+For vertical layout > column
+  Horizontal layout > Row 
+  FramLayout > Box
+LazyColumn for recyclerView
+
+Modifier
+   Used for 
+   Padding 
+   Size
+   Click
+  Background
+ Alignment
+
+State Hosting with viewModel 
+
+Class LoginViewModel : ViewModel(){
+
+var email by mutableStateOf (“”)
+
+Fun updateEmail(value: String){
+
+Email = value
+}
+
+    var shouldShowOnboarding by remember { mutableStateOf(true) }
+
+	⁃	Surface(modifier) {
+	⁃	        if (shouldShowOnboarding) {
+	⁃	            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
+	⁃	        } else {
+	⁃	            Greetings()
+	⁃	        }
+	⁃	    }
+
+This is the example where we can show two different coops fun in one click
+
+ when app is running and you rotate app, old view will be created and kill old view , in that case if we need to retain state we may need to use rememberSaveable instead of remember
+
+Var shouldShowOnBoarding by rememberSaveable { mutableSateOf(true)}
+}
+-For Dark theme we may need to create Theme composable where we will get boolean vale for isSystemInDarkTheme 
+
+Based on value we can decide which colour them we can show for dark & light 
+
+
+
+@HiltViewModel
+class UserViewModel @Inject constructor(
+    private val getUsersUseCase: GetUsersUseCase,
+    private val addUserUseCase: AddUserUseCase,
+    private val getTodoUseCase: GetTodoUseCase
+) : ViewModel() {
+
+private val _users = MutableStateFlow<List<User>>(emptyList())
+val users: StateFlow<List<User>> = _users.asStateFlow()
+
+ViewModel state flow will be observe on Composable screen
+
+val users by viewModel.users.collectAsState()
+
+
+
+ 
+
+Var user by rememberSavebale {mutablesateof(listOf<User>())}
+
+Remember scrolling position on LazyColumn
+
+Val listState = rememberLazyListState()
+
+LazyColumn(state = lisState){
+
+}
+
+Scope.launch(listState.animateScrollToItem(50)
+
+————————————————=========—————————————==================—————=======
+
+3 Why inline fun was introduced 
+
+ Optimise higher order function 
+
+  List.foreach{
+ println(it)
+}
+
+Foreach is actually inline fun
+
+Without inline every lambda could create additional objects
+
+benifits : less memory , faster execution 
+
+
+# Extension function 
+
+   Allow adding functionality to existing class
+
+  Fun String.isValid(): Boolean{
+
+ Return length ==12
+}
+
+# HigherOrderfunction
+
+   Fun returning fun
+
+=======—————===================—————==================
+
+Coroutine
+
+
+1. Coroutine Scope
+
+   Lifecycle of coroutine
+   
+   viewModelScope -> connected to view model
+
+  lifecycleScope .>Connected to Activity / Fragment
+
+2. Dispatcher (Threading )
+    Dispatcher.main > UI thread ( Ui update , navigation, showing dialog)
+    Dispatcher.IO > network/ database (API calls , database & file operation)
+   Dispatcher.Default > Cpu work (sorting, filtering, data processing)
+
+Switching thread
+
+——
+
+viewmodelScope.launch{ // starts with main thread
+
+Val users = withContext(Dispatcher.IO){ // switch to IO thread to perform api calls
+  api.getUsers()
+}
+
+updateUI(users) // now update UI in main thread
+}
+
+——
+
+How do you prevent one failure from cancelling others?
+Expected answer: Use supervisorScope 
+viewModelScope.launch{
+
+supervisorScope {
+    val a = async { api.call1() }
+    val b = async { api.call2() } // fails
+
+    // a still survives
+}
+
+}
+
+——  
+
+launch vs async exception handling difference?
+Important edge case:
+	•	launch → crashes immediately if exception
+	•	async → stores exception until await()
+
+val result = async { throw Exception() }
+// no crash until await()
+
+——
+
+How do you handle backpressure in Flow?
+Expected:
+	•	buffer()
+	•	conflate()
+	•	collectLatest()
+
+Buffer
+
+flow {
+       repeat(5){
+  emit(it)
+}
+.buffer()
+.collect{
+ delay(1000)
+}
+}
+
+—— 
+
+collectLatest() use for search query
+
+searchQueryFlow.
+  collectLatest { query ->
+   Api.search(query)
+
+}
+
+When user type 
+
+A
+Ak
+Akha
+Akhand
+
+Older api request gets canceled only latest search get executed 
+
+— — 
+Coroutine Builder
+
+launch > No result , fire & forget
+ 
+launch {
+  saveData()
+} 
+
+async > return result
+
+val result = async{
+  getData()
+}
+    result.await()
+
+
+Parallel execution
+
+async can be used to run parallel api request and get the result in same time
+
+Val userDeferred= async{ getData}
+val orderDeferred= async { getOrder()}
+
+Val user = userDeferred.await()
+
+
+————
+viewModelScope.launch{
+Val userDeferred= async{ getData}
+val orderDeferred= async { getOrder()}
+
+Val user = userDeferred.await()
+
+}
+
+If getData get failed 
+Api 1 get failed > parent canceled > api 2 get canceled
+
+Use supervisorScope if you don’t want to cancel 
+
+viewModelScope.launch{
+supervisorScope {
+Val userDeferred= async{ getData}
+val orderDeferred= async { getOrder()}
+
+}
+Val user = userDeferred.await()
+
+}
+
+
+

@@ -65,3 +65,21 @@ MVVM VS Clean Architecture
 MVVM                        Clean Architecture
 
 Defines UI Structure        defines App structure
+
+ Clean Architecture
+
+
+Presentation
+ ├── ViewModel
+ ├── State
+ └── UI
+
+Domain
+ ├── UseCase
+ ├── Entity
+ └── Repository Interface
+
+Data
+ ├── RepositoryImpl
+ ├── API
+ └── Database
